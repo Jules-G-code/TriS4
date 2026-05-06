@@ -21,10 +21,27 @@ void setup()
     pinMode(26, OUTPUT); // Rouge
     pinMode(27, OUTPUT); // Vert
 
+    // Configurer PWM sur GPIO13
+    ledcSetup(0, 200, 10); // canal 0, 200 Hz, 10 bits
+    ledcAttachPin(13, 0);
+    ledcWrite(0, 0); // désactivé au début
+
 }
 
 void loop()
 {
+
+    bool trigger = digitalRead(23);
+
+    if (trigger) 
+    {
+        ledcWrite(0, 512); // PWM à 50% 512
+    }
+    else
+    {
+        ledcWrite(0, 0); // PWM à 0% 
+    }
+
     uint16_t r, g, b, c, color;
     tcs.getRawData(&r, &g, &b, &c);
     
@@ -33,21 +50,21 @@ void loop()
 
     // Activation des sorties en fonction des seuils
     if (color < 100) {
-        digitalWrite(25, HIGH); // Bleu
-        digitalWrite(26, LOW);
-        digitalWrite(27, LOW);
+        digitalWrite(25, LOW); // Bleu
+        digitalWrite(26, HIGH);
+        digitalWrite(27, HIGH);
     } else if (color >= 1000 && color <= 2000) {
-        digitalWrite(25, LOW);
-        digitalWrite(26, HIGH); // Rouge
-        digitalWrite(27, LOW);
+        digitalWrite(25, HIGH);
+        digitalWrite(26, LOW); // Rouge
+        digitalWrite(27, HIGH);
     } else if (color > 5000) {
-        digitalWrite(25, LOW);
-        digitalWrite(26, LOW);
-        digitalWrite(27, HIGH); // Vert
+        digitalWrite(25, HIGH);
+        digitalWrite(26, HIGH);
+        digitalWrite(27, LOW); // Vert
     } else {
-        digitalWrite(25, LOW);
-        digitalWrite(26, LOW);
-        digitalWrite(27, LOW);
+        digitalWrite(25, HIGH);
+        digitalWrite(26, HIGH);
+        digitalWrite(27, HIGH);
     }
 
     // Lire l'état des sorties
@@ -59,34 +76,3 @@ void loop()
     delay(400);
 }
 
-
-
-
-/*
-void setup()
-{
-    Serial.begin(115200);
-    Wire.begin(21, 22); // SDA sur 21, SCL sur 22
-
-    if (tcs.begin()) {
-        Serial.println("Capteur TCS34725 trouvé");
-    } else {
-        Serial.println("Aucun TCS34725 trouvé ... vérifiez vos connexions");
-        while (1); // Arrêt
-    }
-}
-
-void loop()
-{
-    uint16_t r, g, b, c;
-
-    tcs.getRawData(&r, &g, &b, &c);
-
-    Serial.print("R: "); Serial.print(r, DEC); Serial.print(" ");
-    Serial.print("G: "); Serial.print(g, DEC); Serial.print(" ");
-    Serial.print("B: "); Serial.print(b, DEC); Serial.print(" ");
-    Serial.print("C: "); Serial.print(c, DEC); Serial.println(" ");
-
-    delay(1000);
-}
-*/
